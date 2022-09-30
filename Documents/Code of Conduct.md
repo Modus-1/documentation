@@ -29,4 +29,4 @@
 ## What to do when ending a sprint:
 - Do a sprint review with the product owners.
 - Do a sprint retrospective.
-- Each sprint retrospective has a scrum board.
+	- Each sprint retrospective has a scrum board.
