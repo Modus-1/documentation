@@ -1,0 +1,92 @@
+version: "3.9"
+
+name: Modus Menu
+services:
+  customer-frontend:
+    container_name: customer-frontend
+    image: customer-frontend
+    build:
+      context: ./customer-frontend
+      dockerfile: /Dockerfile
+    restart: on-failure
+    ports:
+      - "3000:3000"
+
+  staff-frontend:
+    container_name: staff-frontend
+    image: staff-frontend
+    build:
+      context: ./staff-frontend
+      dockerfile: /Dockerfile
+    restart: on-failure
+    ports:
+      - "3001:3001"
+
+  manager-frontend:
+    container_name: manager-frontend
+    image: manager-frontend
+    build:
+      context: ./manager-frontend
+      dockerfile: /Dockerfile
+    restart: on-failure
+    ports:
+      - "3002:3002"
+
+  gateway:
+    container_name: gateway
+    image: gateway
+    build:
+      context: ./gateway
+      dockerfile: /Dockerfile
+    restart: on-failure
+    ports: 
+      - "23456:12345"
+
+  menu-api:
+    container_name: menu-api
+    depends_on:
+      - kaasje
+    image: menu-api
+    build:
+      context: ./menu-api/menu-api
+      dockerfile: /Dockerfile
+    restart: on-failure
+    command: 
+      dotnet ef migrations add init
+      && dotnet ef database update
+    ports:
+      - "9000:80"
+      - "9001:443"
+    networks:
+      - menu-net
+  kaasje:
+    container_name: kaasje
+    restart: always
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - MSSQL_SA_PASSWORD=OurSTRONG!Passw0rd
+      - ACCEPT_EULA=Y
+      - UserID=sa
+    ports:
+      - "1433:1433"
+    networks:
+      - menu-net
+
+  order-api:
+    container_name: order-api
+    image: order-api
+    build:
+      context: ./order-api/order-api
+      dockerfile: /Dockerfile
+    restart: on-failure
+    ports:
+      - "9002:80"
+      - "9003:443"
+    networks:
+      - order-net
+
+networks:
+  menu-net:
+    driver: bridge
+  order-net:
+    driver: bridge
